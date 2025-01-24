@@ -1,0 +1,56 @@
+# Node.js / React / Vite
+node_modules/
+dist/
+.vite/
+*.log
+*.cache/
+*.env
+.env.*
+pnpm-debug.log*
+
+# Vite cache
+.vite/deps/
+
+# Go
+bin/
+*.out
+*.exe
+*.test
+*.o
+*.so
+
+# Go vendor directory (if using vendoring)
+vendor/
+
+# Go modules cache
+go.sum
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+.DS_Store
+
+# Logs
+*.log
+*.log.*
+
+# macOS system files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+**/docker-compose.override.yml
+
+# Migrations (only exclude generated files, not the migration files themselves)
+db/migrations/*.sql~
+db/migrations/.*.swp
+
+# Miscellaneous
+*.bak
+*.tmp
+*.old
+
