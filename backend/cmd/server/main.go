@@ -3,9 +3,11 @@ package main
 import (
 	"log"
 
+	"github.com/TommyN987/guess_the_oscars/backend/internal/api"
 	"github.com/TommyN987/guess_the_oscars/backend/internal/config"
 	"github.com/TommyN987/guess_the_oscars/backend/internal/db"
-	"github.com/gofiber/fiber/v2"
+	"github.com/TommyN987/guess_the_oscars/backend/internal/repository"
+	"github.com/TommyN987/guess_the_oscars/backend/internal/service"
 )
 
 func main() {
@@ -14,18 +16,11 @@ func main() {
 	pool := db.ConnectDB(cfg)
 	defer pool.Close()
 
-	app := fiber.New()
+	repo := repository.NewPgxRepository(pool)
 
-	app.Get("/health", func(c *fiber.Ctx) error {
-		if err := pool.Ping(c.Context()); err != nil {
-			return c.Status(500).SendString("Database connection error")
-		}
-		return c.SendString("Database connection healthy")
-	})
+	svc := service.NewDefaultService(repo)
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Welcome to Guess the Oscars!")
-	})
+	app := api.NewRouter(svc)
 
 	addr := ":8080"
 	log.Printf("Starting server on %s... \n", addr)

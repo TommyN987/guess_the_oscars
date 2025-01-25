@@ -8,6 +8,7 @@ import (
 )
 
 type Repository interface {
+	CheckHealth(ctx context.Context) (string, error)
 	GetAllCategories(ctx context.Context) ([]domain.Category, error)
 	GetNominationsByCategoryID(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error)
 }
@@ -18,6 +19,16 @@ type PgxRepository struct {
 
 func NewPgxRepository(db *pgxpool.Pool) *PgxRepository {
 	return &PgxRepository{db: db}
+}
+
+func (r *PgxRepository) CheckHealth(ctx context.Context) (string, error) {
+	err := r.db.Ping(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return "Database connection healthy", nil
+
 }
 
 func (r *PgxRepository) GetAllCategories(ctx context.Context) ([]domain.Category, error) {
@@ -41,19 +52,16 @@ func (r *PgxRepository) GetAllCategories(ctx context.Context) ([]domain.Category
 }
 
 func (r *PgxRepository) GetNominationsByCategoryID(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error) {
-	// Fetch the category
 	category, err := r.fetchCategoryByID(ctx, categoryID)
 	if err != nil {
 		return domain.Category{}, nil, err
 	}
 
-	// Fetch nominations for the category
 	nominationsDB, err := r.fetchNominationsByCategoryID(ctx, categoryID)
 	if err != nil {
 		return domain.Category{}, nil, err
 	}
 
-	// Build domain nominations
 	nominations := make([]domain.Nomination, 0, len(nominationsDB))
 	for _, n := range nominationsDB {
 		nomination, err := r.buildNomination(ctx, n, category)
