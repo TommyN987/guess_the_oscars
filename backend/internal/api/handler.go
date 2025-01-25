@@ -48,9 +48,14 @@ func getNominationsByCategory(svc service.Service) fiber.Handler {
 			})
 		}
 
+		nominationsResponse := make([]NominationResponse, len(nominations))
+		for i, n := range nominations {
+			nominationsResponse[i] = toResponseNomination(n)
+		}
+
 		return c.JSON(fiber.Map{
 			"category":    category,
-			"nominations": nominations,
+			"nominations": nominationsResponse,
 		})
 	}
 }
