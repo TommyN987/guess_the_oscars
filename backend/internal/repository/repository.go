@@ -9,6 +9,8 @@ import (
 
 type Repository interface {
 	CheckHealth(ctx context.Context) (string, error)
+	CreateUser(ctx context.Context, user domain.User) error
+	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
 	GetAllCategories(ctx context.Context) ([]domain.Category, error)
 	GetNominationsByCategoryID(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error)
 }
@@ -29,6 +31,29 @@ func (r *PgxRepository) CheckHealth(ctx context.Context) (string, error) {
 
 	return "Database connection healthy", nil
 
+}
+
+func (r *PgxRepository) CreateUser(ctx context.Context, user domain.User) error {
+	_, err := r.db.Exec(ctx, `
+        INSERT INTO users (name, email, password_hash)
+        VALUES ($1, $2, $3)`,
+		user.Name, user.Email, user.Password)
+	return err
+}
+
+func (r *PgxRepository) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	var user domain.User
+	err := r.db.QueryRow(ctx, `
+        SELECT id, name, email, password_hash
+        FROM users
+        WHERE email = $1
+        `, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
 }
 
 func (r *PgxRepository) GetAllCategories(ctx context.Context) ([]domain.Category, error) {

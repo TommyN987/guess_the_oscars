@@ -8,6 +8,8 @@ import (
 func NewRouter(svc service.Service) *fiber.App {
 	app := fiber.New()
 
+	app.Post("/register", registerUser(svc))
+	app.Post("/login", loginUser(svc))
 	app.Get("/categories", getAllCategories(svc))
 	app.Get("/categories/:id/nominations", getNominationsByCategory(svc))
 	app.Get("/health", checkHealth(svc))

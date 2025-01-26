@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/TommyN987/guess_the_oscars/backend/internal/domain"
 	"github.com/TommyN987/guess_the_oscars/backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,6 +18,61 @@ func checkHealth(svc service.Service) fiber.Handler {
 			})
 		}
 		return c.JSON(health)
+	}
+}
+
+func registerUser(svc service.Service) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var user domain.User
+		if err := c.BodyParser(&user); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid request body",
+			})
+		}
+
+		err := svc.RegisterUser(c.Context(), user)
+		if err != nil {
+			return c.Status(http.StatusConflict).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+
+		token, err := svc.LoginUser(c.Context(), user.Email, user.Password)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to log in the user after registration.",
+			})
+		}
+
+		return c.Status(http.StatusCreated).JSON(fiber.Map{
+			"message": "User registered successfully.",
+			"token":   token,
+		})
+	}
+}
+
+func loginUser(svc service.Service) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var credentials struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+		if err := c.BodyParser(&credentials); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid request body",
+			})
+		}
+
+		token, err := svc.LoginUser(c.Context(), credentials.Email, credentials.Password)
+		if err != nil {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"token": token,
+		})
 	}
 }
 
