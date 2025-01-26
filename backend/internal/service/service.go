@@ -40,7 +40,6 @@ func (s *DefaultService) RegisterUser(ctx context.Context, user domain.User) err
 		return err
 	}
 
-	// Hash the password
 	hashedPassword, err := hashPassword(user.Password)
 	if err != nil {
 		return err
@@ -48,14 +47,13 @@ func (s *DefaultService) RegisterUser(ctx context.Context, user domain.User) err
 
 	user.Password = hashedPassword
 
-	// Save the user
 	return s.repo.CreateUser(ctx, user)
 }
 
 func (s *DefaultService) LoginUser(ctx context.Context, email, password string) (string, error) {
 	user, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return "", errors.New("Invalid email or password.")
+		return "", errors.New("Invalid email or password...!")
 	}
 
 	if err := checkPasswordHash(password, user.Password); err != nil {

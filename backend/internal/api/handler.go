@@ -44,6 +44,8 @@ func registerUser(svc service.Service) fiber.Handler {
 			})
 		}
 
+		setTokenAsCookie(c, token)
+
 		return c.Status(http.StatusCreated).JSON(fiber.Map{
 			"message": "User registered successfully.",
 			"token":   token,
@@ -69,6 +71,8 @@ func loginUser(svc service.Service) fiber.Handler {
 				"error": err.Error(),
 			})
 		}
+
+		setTokenAsCookie(c, token)
 
 		return c.JSON(fiber.Map{
 			"token": token,
@@ -113,5 +117,11 @@ func getNominationsByCategory(svc service.Service) fiber.Handler {
 			"category":    category,
 			"nominations": nominationsResponse,
 		})
+	}
+}
+
+func submitGuesses() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("Submitted")
 	}
 }

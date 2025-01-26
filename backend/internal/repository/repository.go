@@ -52,7 +52,6 @@ func (r *PgxRepository) GetUserByEmail(ctx context.Context, email string) (domai
 	if err != nil {
 		return domain.User{}, err
 	}
-
 	return user, nil
 }
 

@@ -38,7 +38,7 @@ func generateJWT(user domain.User) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func validateJWT(tokenStr string) (*jwt.Token, error) {
+func ValidateJWT(tokenStr string) (*jwt.Token, error) {
 	return jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid

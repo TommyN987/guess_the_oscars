@@ -17,5 +17,8 @@ func NewRouter(svc service.Service) *fiber.App {
 		return c.SendString("Welcome to Guess the Oscars!")
 	})
 
+	protected := app.Group("/p", AuthMiddleware())
+	protected.Post("/guesses", submitGuesses())
+
 	return app
 }
