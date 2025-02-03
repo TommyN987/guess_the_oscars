@@ -9,8 +9,10 @@ import (
 
 type Repository interface {
 	CheckHealth(ctx context.Context) (string, error)
-	CreateUser(ctx context.Context, user domain.User) error
+	CreateUser(ctx context.Context, user domain.User, userValidation domain.UserValidation) error
 	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
+	GetUserByToken(ctx context.Context, token string) (domain.User, error)
+	UpdateUserConfirmation(ctx context.Context, userID int) error
 	GetAllCategories(ctx context.Context) ([]domain.Category, error)
 	GetNominationsByCategoryID(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error)
 }
@@ -33,21 +35,46 @@ func (r *PgxRepository) CheckHealth(ctx context.Context) (string, error) {
 
 }
 
-func (r *PgxRepository) CreateUser(ctx context.Context, user domain.User) error {
+func (r *PgxRepository) CreateUser(ctx context.Context, user domain.User, userValidation domain.UserValidation) error {
 	_, err := r.db.Exec(ctx, `
-        INSERT INTO users (name, email, password_hash)
-        VALUES ($1, $2, $3)`,
-		user.Name, user.Email, user.Password)
+        INSERT INTO users (name, email, password_hash, confirmation_token, confirmation_expires)
+        VALUES ($1, $2, $3, $4, $5)`,
+		user.Name, user.Email, user.Password, userValidation.ConfirmationToken, userValidation.ConfirmationExpires)
 	return err
+}
+
+func (r *PgxRepository) UpdateUserConfirmation(ctx context.Context, userID int) error {
+	_, err := r.db.Exec(ctx, `
+        UPDATE users
+        SET email_confirmed = TRUE, confirmation_token = NULL, confirmation_expires = NULL
+        WHERE id = $1
+        `, userID)
+	return err
+}
+
+func (r *PgxRepository) GetUserByToken(ctx context.Context, token string) (domain.User, error) {
+	var user domain.User
+	err := r.db.QueryRow(ctx, `
+        SELECT id, name, email, password_hash, email_confirmed
+        FROM users
+        WHERE confirmation_token = $1 AND confirmation_expires > NOW()
+        `, token).Scan(
+		&user.ID, &user.Name, &user.Email, &user.Password, &user.EmailConfirmed,
+	)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
 }
 
 func (r *PgxRepository) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
 	var user domain.User
 	err := r.db.QueryRow(ctx, `
-        SELECT id, name, email, password_hash
+        SELECT id, name, email, password_hash, email_confirmed
         FROM users
         WHERE email = $1
-        `, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+        `, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.EmailConfirmed)
 
 	if err != nil {
 		return domain.User{}, err

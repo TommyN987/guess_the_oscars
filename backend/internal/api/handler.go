@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/TommyN987/guess_the_oscars/backend/internal/domain"
 	"github.com/TommyN987/guess_the_oscars/backend/internal/service"
@@ -18,6 +19,26 @@ func checkHealth(svc service.Service) fiber.Handler {
 			})
 		}
 		return c.JSON(health)
+	}
+}
+
+func getUserInfo() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userID := c.Locals("userID")
+		email := c.Locals("email")
+		name := c.Locals("name")
+
+		if userID == nil || email == nil || name == nil {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Unauthorized",
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"id":    userID,
+			"email": email,
+			"name":  name,
+		})
 	}
 }
 
@@ -37,20 +58,43 @@ func registerUser(svc service.Service) fiber.Handler {
 			})
 		}
 
-		token, err := svc.LoginUser(c.Context(), user.Email, user.Password)
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to log in the user after registration.",
+		return c.Status(http.StatusCreated).JSON(fiber.Map{
+			"message": "Registration successful. Please check your email to confirm your account.",
+		})
+	}
+}
+
+func validateEmail(svc service.Service) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		token := c.Query("token")
+		if token == "" {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid or missing token.",
 			})
 		}
 
-		setTokenAsCookie(c, token)
+		user, err := svc.ValidateToken(c.Context(), token)
+		if err != nil {
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
 
-		return c.Status(http.StatusCreated).JSON(fiber.Map{
-			"message": "User registered successfully.",
-			"token":   token,
+		jwtToken, err := service.GenerateJWT(user)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to log in after validation.",
+			})
+		}
+
+		setTokenAsCookie(c, jwtToken)
+
+		return c.JSON(fiber.Map{
+			"message": "Email validated successfully.",
+			"token":   jwtToken,
 		})
 	}
+
 }
 
 func loginUser(svc service.Service) fiber.Handler {
@@ -76,6 +120,24 @@ func loginUser(svc service.Service) fiber.Handler {
 
 		return c.JSON(fiber.Map{
 			"token": token,
+		})
+	}
+}
+
+func logoutUser() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Clear the auth_token cookie
+		c.Cookie(&fiber.Cookie{
+			Name:     "auth_token",
+			Value:    "",
+			Expires:  time.Now().Add(-time.Hour),
+			HTTPOnly: true,
+			Secure:   false, // Set to true in production for HTTPS
+			SameSite: "Strict",
+		})
+
+		return c.JSON(fiber.Map{
+			"message": "Logged out successfully.",
 		})
 	}
 }

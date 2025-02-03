@@ -27,10 +27,11 @@ func init() {
 	jwtSecret = []byte(secret)
 }
 
-func generateJWT(user domain.User) (string, error) {
+func GenerateJWT(user domain.User) (string, error) {
 	claims := jwt.MapClaims{
 		"id":    user.ID,
 		"email": user.Email,
+		"name":  user.Name,
 		"exp":   time.Now().Add(time.Hour * 72).Unix(),
 	}
 

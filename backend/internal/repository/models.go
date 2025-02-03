@@ -34,12 +34,15 @@ type NomineePersonDB struct {
 }
 
 type UserDB struct {
-	ID           int
-	Name         string
-	Email        string
-	PasswordHash string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID                  int
+	Name                string
+	Email               string
+	EmailConfirmed      bool
+	ConfirmationToken   string
+	ConfirmationExpires time.Time
+	PasswordHash        string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 type GuessDB struct {

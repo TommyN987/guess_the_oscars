@@ -31,7 +31,10 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
+    email_confirmed BOOLEAN DEFAULT FALSE,
+    password_hash VARCHAR(255) NOT NULL,
+    confirmation_token VARCHAR(255),
+    confirmation_expires TIMESTAMP
 );
 
 CREATE TABLE guesses (

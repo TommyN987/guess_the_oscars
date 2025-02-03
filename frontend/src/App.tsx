@@ -1,35 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { CategoryList } from "./components/CategoryList";
+import background from "./assets/bbedb45f-14d1-4aee-a347-54a1fbd6e15c.webp";
+import { useAuth } from "./hooks/useAuth";
+import { Registration } from "./components/Registration";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const {
+        context: { user },
+    } = useAuth();
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <div
+            style={{
+                backgroundImage: `url(${background})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+            }}
+            className="min-h-screen flex flex-col items-center bg-gradient-to-b from-black via-gray-900 to-black text-white font-sans"
+        >
+            <div className="absolute inset-0 bg-black opacity-70" />
+            <header className="w-full flex justify-center font-serif bg-black text-4xl opacity-80 z-20 p-2 text-gold">
+                <h1>Guess the Oscars</h1>
+            </header>
+            <main className="w-full grow flex flex-col justify-center items-center">
+                {user ? <CategoryList /> : <Registration />}
+            </main>
+        </div>
+    );
 }
 
-export default App
+export default App;

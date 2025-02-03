@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Movie struct {
 	ID      int    `json:"id"`
 	Title   string `json:"title"`
@@ -25,10 +27,16 @@ type Nomination struct {
 }
 
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID             int    `json:"id"`
+	Name           string `json:"name"`
+	Email          string `json:"email"`
+	Password       string `json:"password"`
+	EmailConfirmed bool   `json:"email_confirmed"`
+}
+
+type UserValidation struct {
+	ConfirmationToken   string
+	ConfirmationExpires time.Time
 }
 
 type Guess struct {

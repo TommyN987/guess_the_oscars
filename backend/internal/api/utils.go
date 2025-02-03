@@ -1,6 +1,8 @@
 package api
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
 func setTokenAsCookie(c *fiber.Ctx, token string) {
 	c.Cookie(&fiber.Cookie{
