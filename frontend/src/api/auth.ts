@@ -31,6 +31,24 @@ async function register(name: string, email: string, password: string) {
     }
 }
 
+async function validate(token: string): Promise<User> {
+    try {
+        const resp = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/validate?token=${token}`,
+            {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+            },
+        );
+
+        const user: User = await resp.json();
+        return user;
+    } catch (error) {
+        throw new Error(`Validation error: ${error}`);
+    }
+}
+
 async function login(email: string, password: string) {
     const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/login`, {
         method: "POST",
@@ -48,4 +66,4 @@ async function logout() {
     });
 }
 
-export { getUser, register, login, logout };
+export { getUser, register, validate, login, logout };

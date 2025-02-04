@@ -15,7 +15,7 @@ func NewRouter(svc service.Service) *fiber.App {
 		AllowCredentials: true,
 	}))
 
-	app.Get("/validate", validateEmail(svc))
+	app.Get("/api/validate", validateEmail(svc))
 	app.Post("/api/register", registerUser(svc))
 	app.Post("/api/login", loginUser(svc))
 	app.Get("/api/categories", getAllCategories(svc))

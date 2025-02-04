@@ -30,6 +30,7 @@ func AuthMiddleware() fiber.Handler {
 		claims := token.Claims.(jwt.MapClaims)
 		c.Locals("userID", claims["id"])
 		c.Locals("email", claims["email"])
+		c.Locals("name", claims["name"])
 
 		return c.Next()
 	}
