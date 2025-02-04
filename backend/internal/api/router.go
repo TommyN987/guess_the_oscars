@@ -9,8 +9,9 @@ import (
 func NewRouter(svc service.Service) *fiber.App {
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173", // Frontend origin
+		AllowOrigins:     "http://localhost:5173",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, OPTIONS",
 		AllowCredentials: true,
 	}))
 

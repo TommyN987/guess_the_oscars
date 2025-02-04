@@ -10,3 +10,12 @@ func toResponseNomination(n domain.Nomination) NominationResponse {
 		AdditionalInfo: n.AdditionalInfo,
 	}
 }
+
+func toDomainUser(u UserDTO) domain.User {
+	return domain.User{
+		Name:           u.Name,
+		Email:          u.Email,
+		Password:       u.Password,
+		EmailConfirmed: false,
+	}
+}

@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/TommyN987/guess_the_oscars/backend/internal/domain"
 	"github.com/TommyN987/guess_the_oscars/backend/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -44,14 +43,14 @@ func getUserInfo() fiber.Handler {
 
 func registerUser(svc service.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var user domain.User
+		var user UserDTO
 		if err := c.BodyParser(&user); err != nil {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 				"error": "Invalid request body",
 			})
 		}
 
-		err := svc.RegisterUser(c.Context(), user)
+		err := svc.RegisterUser(c.Context(), toDomainUser(user))
 		if err != nil {
 			return c.Status(http.StatusConflict).JSON(fiber.Map{
 				"error": err.Error(),

@@ -10,3 +10,9 @@ type NominationResponse struct {
 	People         []domain.Person `json:"people"`
 	AdditionalInfo string          `json:"additional_info,omitempty"`
 }
+
+type UserDTO struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

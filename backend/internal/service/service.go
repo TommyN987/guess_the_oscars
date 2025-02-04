@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/TommyN987/guess_the_oscars/backend/internal/domain"
@@ -68,7 +69,13 @@ func (s *DefaultService) RegisterUser(ctx context.Context, user domain.User) err
 		return err
 	}
 
-	go s.sendValidationEmail(user.Name, user.Email, token)
+	go func() {
+		if err := s.sendValidationEmail(user.Name, user.Email, token); err != nil {
+			log.Printf("Failed to send validation email: %v", err) // Ensure errors are logged
+		} else {
+			log.Println("Validation email sent successfully.") // Confirmation log
+		}
+	}()
 
 	return nil
 }

@@ -16,19 +16,22 @@ function Registration() {
     const passwordRef = useRef<HTMLInputElement>(null);
     const repeatPasswordRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = useCallback(() => {
+    const handleSubmit = useCallback(async () => {
         if (activeTab === Tab.Login) {
             console.log({
                 email: emailRef.current?.value,
                 password: passwordRef.current?.value,
             });
         } else {
-            console.log({
-                name: nameRef.current?.value,
-                pass: repeatPasswordRef.current?.value,
-            });
+            const resp = await register(
+                nameRef.current!.value,
+                emailRef.current!.value,
+                passwordRef.current!.value,
+            );
+
+            console.log(resp);
         }
-    }, [activeTab]);
+    }, [activeTab, register]);
 
     return (
         <div className="flex flex-col h-1/2 w-1/2 bg-zinc-800 border-4 border-white p-8 z-10">

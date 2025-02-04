@@ -15,6 +15,10 @@ async function getUser(): Promise<User> {
 async function register(name: string, email: string, password: string) {
     const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/register`, {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
         body: JSON.stringify({
             name,
             email,
