@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/TommyN987/guess_the_oscars/backend/internal/domain"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -14,7 +16,8 @@ type Repository interface {
 	GetUserByToken(ctx context.Context, token string) (domain.User, error)
 	UpdateUserConfirmation(ctx context.Context, userID int) error
 	GetAllCategories(ctx context.Context) ([]domain.Category, error)
-	GetNominationsByCategoryID(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error)
+	GetNominationsByCategoryID(ctx context.Context, userID, categoryID int) ([]domain.Nomination, *domain.Guess, error)
+	UpsertGuess(ctx context.Context, guess domain.Guess) error
 }
 
 type PgxRepository struct {
@@ -102,27 +105,67 @@ func (r *PgxRepository) GetAllCategories(ctx context.Context) ([]domain.Category
 	return categories, nil
 }
 
-func (r *PgxRepository) GetNominationsByCategoryID(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error) {
+func (r *PgxRepository) GetNominationsByCategoryID(ctx context.Context, userID, categoryID int) ([]domain.Nomination, *domain.Guess, error) {
 	category, err := r.fetchCategoryByID(ctx, categoryID)
 	if err != nil {
-		return domain.Category{}, nil, err
+		return nil, nil, err
 	}
 
 	nominationsDB, err := r.fetchNominationsByCategoryID(ctx, categoryID)
 	if err != nil {
-		return domain.Category{}, nil, err
+		return nil, nil, err
 	}
 
 	nominations := make([]domain.Nomination, 0, len(nominationsDB))
+	var guess *domain.Guess = nil
+
 	for _, n := range nominationsDB {
 		nomination, err := r.buildNomination(ctx, n, category)
 		if err != nil {
-			return domain.Category{}, nil, err
+			return nil, nil, err
 		}
 		nominations = append(nominations, nomination)
+
+		// Only set the guess if it hasn't been set already
+		if guess == nil {
+			g, err := r.getGuessByNominationAndUserID(ctx, userID, nomination.ID)
+			if err == nil {
+				guess = &g
+			} else if err != pgx.ErrNoRows {
+				return nil, nil, err
+			}
+		}
 	}
 
-	return category, nominations, nil
+	return nominations, guess, nil
+}
+
+func (r *PgxRepository) UpsertGuess(ctx context.Context, g domain.Guess) error {
+	_, err := r.db.Exec(ctx, `
+        INSERT INTO guesses (user_id, nomination_id)
+        VALUES ($1, $2)
+        ON CONFLICT (user_id, nomination_id) 
+        DO UPDATE SET nomination_id = EXCLUDED.nomination_id
+        `,
+		g.UserID, g.NominationID)
+	return err
+}
+
+func (r *PgxRepository) getGuessByNominationAndUserID(ctx context.Context, userID, nominationID int) (domain.Guess, error) {
+	var guess GuessDB
+	err := r.db.QueryRow(ctx, `
+        SELECT id, user_id, nomination_id
+        FROM guesses WHERE nomination_id = $1 AND user_id = $2
+        `, nominationID, userID).Scan(&guess.ID, &guess.UserID, &guess.NominationID)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Guess{}, pgx.ErrNoRows
+		}
+		return domain.Guess{}, err
+	}
+
+	return toDomainGuess(guess), nil
 }
 
 func (r *PgxRepository) fetchCategoryByID(ctx context.Context, categoryID int) (domain.Category, error) {

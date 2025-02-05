@@ -34,6 +34,13 @@ func toDomainNomination(n NominationDB, c domain.Category, m domain.Movie, p []d
 	}
 }
 
+func toDomainGuess(g GuessDB) domain.Guess {
+	return domain.Guess{
+		NominationID: g.NominationID,
+		UserID:       g.UserID,
+	}
+}
+
 func getString(s *string) string {
 	if s == nil {
 		return ""

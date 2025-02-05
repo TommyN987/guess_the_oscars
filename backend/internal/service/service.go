@@ -19,9 +19,10 @@ type Service interface {
 	CheckHealth(ctx context.Context) (string, error)
 	RegisterUser(ctx context.Context, user domain.User) error
 	ValidateToken(ctx context.Context, token string) (domain.User, error)
-	LoginUser(ctx context.Context, email, password string) (string, error)
+	LoginUser(ctx context.Context, email, password string) (string, domain.User, error)
 	GetAllCategories(ctx context.Context) ([]domain.Category, error)
-	GetNominationsByCategory(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error)
+	GetNominationsByCategory(ctx context.Context, userID, categoryID int) ([]domain.Nomination, *domain.Guess, error)
+	SubmitGuess(ctx context.Context, guess domain.Guess) error
 }
 
 type DefaultService struct {
@@ -94,29 +95,38 @@ func (s *DefaultService) ValidateToken(ctx context.Context, token string) (domai
 	return user, nil
 }
 
-func (s *DefaultService) LoginUser(ctx context.Context, email, password string) (string, error) {
+func (s *DefaultService) LoginUser(ctx context.Context, email, password string) (string, domain.User, error) {
 	user, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return "", errors.New("Invalid email or password...!")
+		return "", domain.User{}, errors.New("Invalid email or password...!")
 	}
 
 	if !user.EmailConfirmed {
-		return "", errors.New("Please confirm your email before logging in.")
+		return "", domain.User{}, errors.New("Please confirm your email before logging in.")
 	}
 
 	if err := checkPasswordHash(password, user.Password); err != nil {
-		return "", errors.New("Invalid email or password.")
+		return "", domain.User{}, errors.New("Invalid email or password.")
 	}
 
-	return GenerateJWT(user)
+	token, e := GenerateJWT(user)
+	if e != nil {
+		return "", domain.User{}, e
+	}
+
+	return token, user, nil
 }
 
 func (s *DefaultService) GetAllCategories(ctx context.Context) ([]domain.Category, error) {
 	return s.repo.GetAllCategories(ctx)
 }
 
-func (s *DefaultService) GetNominationsByCategory(ctx context.Context, categoryID int) (domain.Category, []domain.Nomination, error) {
-	return s.repo.GetNominationsByCategoryID(ctx, categoryID)
+func (s *DefaultService) GetNominationsByCategory(ctx context.Context, userID, categoryID int) ([]domain.Nomination, *domain.Guess, error) {
+	return s.repo.GetNominationsByCategoryID(ctx, userID, categoryID)
+}
+
+func (s *DefaultService) SubmitGuess(ctx context.Context, guess domain.Guess) error {
+	return s.repo.UpsertGuess(ctx, guess)
 }
 
 func (s *DefaultService) sendValidationEmail(name, email, token string) error {

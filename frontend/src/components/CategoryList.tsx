@@ -1,5 +1,5 @@
 import { useCategories } from "../hooks/useCategories";
-import { NominationsCard } from "./NominationsCard";
+import { Accordion } from "./Accordion";
 
 function CategoryList() {
     const { categories, loading, error } = useCategories();
@@ -8,11 +8,10 @@ function CategoryList() {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <ul className="w-[50%] flex flex-col gap-4">
-            <NominationsCard category={categories[1]} />
-            {/*categories.map((category) => (
-                <NominationsCard category={category} />
-            ))*/}
+        <ul className="w-[50%] flex flex-col gap-4 z-50">
+            {categories.map((category) => (
+                <Accordion key={category.id} category={category} />
+            ))}
         </ul>
     );
 }

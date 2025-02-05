@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { User } from "../api/types";
 
 enum Tab {
     Login,
@@ -7,6 +8,9 @@ enum Tab {
 }
 
 function Registration() {
+    const {
+        context: { setUser },
+    } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>(Tab.Login);
 
     const { register, login } = useAuth();
@@ -18,20 +22,19 @@ function Registration() {
 
     const handleSubmit = useCallback(async () => {
         if (activeTab === Tab.Login) {
-            console.log({
-                email: emailRef.current?.value,
-                password: passwordRef.current?.value,
-            });
+            const user: User = await login(
+                emailRef.current!.value,
+                passwordRef.current!.value,
+            );
+            setUser(user);
         } else {
-            const resp = await register(
+            await register(
                 nameRef.current!.value,
                 emailRef.current!.value,
                 passwordRef.current!.value,
             );
-
-            console.log(resp);
         }
-    }, [activeTab, register]);
+    }, [activeTab, register, login, setUser]);
 
     return (
         <div className="flex flex-col h-1/2 w-1/2 bg-zinc-800 border-4 border-white p-8 z-10">

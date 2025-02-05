@@ -1,10 +1,14 @@
-import { Category, NominationsForCategory } from "./types";
+import { Category, NominationDTO } from "./types";
 
 async function fetchNominationsByCategory(
     category: Category,
-): Promise<NominationsForCategory> {
+): Promise<NominationDTO[]> {
     const resp = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/categories/${category.id}/nominations`,
+        `${import.meta.env.VITE_API_BASE_URL}/p/categories/${category.id}/nominations`,
+        {
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+        },
     );
     if (!resp.ok) {
         throw new Error(
@@ -12,7 +16,9 @@ async function fetchNominationsByCategory(
         );
     }
 
-    return resp.json();
+    const data = await resp.json();
+
+    return data.nominations;
 }
 
 export { fetchNominationsByCategory };

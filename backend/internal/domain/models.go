@@ -40,7 +40,6 @@ type UserValidation struct {
 }
 
 type Guess struct {
-	ID         int `json:"id"`
-	UserID     int `json:"user_id"`
-	Nomination int `json:"nomination_id"`
+	UserID       int
+	NominationID int
 }

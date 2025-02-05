@@ -18,8 +18,6 @@ func NewRouter(svc service.Service) *fiber.App {
 	app.Get("/api/validate", validateEmail(svc))
 	app.Post("/api/register", registerUser(svc))
 	app.Post("/api/login", loginUser(svc))
-	app.Get("/api/categories", getAllCategories(svc))
-	app.Get("/api/categories/:id/nominations", getNominationsByCategory(svc))
 	app.Get("/health", checkHealth(svc))
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Welcome to Guess the Oscars!")
@@ -28,7 +26,9 @@ func NewRouter(svc service.Service) *fiber.App {
 	protected := app.Group("/api/p", AuthMiddleware())
 	protected.Get("/me", getUserInfo())
 	protected.Post("/logout", logoutUser())
-	protected.Post("/guesses", submitGuesses())
+	protected.Get("/categories", getAllCategories(svc))
+	protected.Get("/categories/:id/nominations", getNominationsByCategory(svc))
+	protected.Post("/guesses", submitGuess(svc))
 
 	return app
 }

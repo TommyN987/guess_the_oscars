@@ -1,21 +1,34 @@
 import { useEffect, useState } from "react";
-import { Category, NominationsForCategory } from "../api/types";
+import { Category, Nomination } from "../api/types";
 import { fetchNominationsByCategory } from "../api/nominations";
 
 function useNominations(category: Category) {
-    const [nominationsForCategory, setNominationsForCategory] =
-        useState<NominationsForCategory | null>(null);
+    const [nominationsForCategory, setNominationsForCategory] = useState<
+        Nomination[]
+    >([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async (category: Category) => {
             try {
-                const data = await fetchNominationsByCategory(category);
-                data.nominations.sort((a, b) =>
+                const nominationsDTO =
+                    await fetchNominationsByCategory(category);
+                nominationsDTO.sort((a, b) =>
                     a.movie.title.localeCompare(b.movie.title),
                 );
-                setNominationsForCategory(data);
+
+                const nominations = nominationsDTO.map(
+                    (nomination): Nomination => {
+                        return {
+                            id: nomination.id,
+                            movie: nomination.movie,
+                            people: nomination.people,
+                            isGuessed: nomination.is_guessed,
+                        };
+                    },
+                );
+                setNominationsForCategory(nominations);
             } catch (err) {
                 setError((err as Error).message);
             } finally {

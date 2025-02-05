@@ -49,20 +49,26 @@ async function validate(token: string): Promise<User> {
     }
 }
 
-async function login(email: string, password: string) {
+async function login(email: string, password: string): Promise<User> {
     const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/login`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
     });
 
     if (!resp.ok) {
         throw new Error("Invalid email or password.");
+    } else {
+        return resp.json();
     }
 }
 
 async function logout() {
     fetch(`${import.meta.env.VITE_API_BASE_URL}/p/logout`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
     });
 }
 

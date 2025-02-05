@@ -23,11 +23,23 @@ type Nomination = {
     id: number;
     movie: Movie;
     people: Person[];
+    isGuessed: boolean;
+};
+
+type NominationDTO = {
+    id: number;
+    movie: Movie;
+    people: Person[];
+    is_guessed: boolean;
 };
 
 type NominationsForCategory = {
-    category: Category;
     nominations: Nomination[];
+};
+
+type Guess = {
+    userID: number;
+    nominationID: number;
 };
 
 export {
@@ -36,5 +48,7 @@ export {
     type Person,
     type Category,
     type Nomination,
+    type NominationDTO,
     type NominationsForCategory,
+    type Guess,
 };

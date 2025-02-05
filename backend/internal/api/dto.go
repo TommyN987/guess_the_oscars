@@ -9,10 +9,15 @@ type NominationResponse struct {
 	Movie          domain.Movie    `json:"movie"`
 	People         []domain.Person `json:"people"`
 	AdditionalInfo string          `json:"additional_info,omitempty"`
+	IsGuessed      bool            `json:"is_guessed"`
 }
 
 type UserDTO struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type GuessDTO struct {
+	NominationID int `json:"nomination_id"`
 }

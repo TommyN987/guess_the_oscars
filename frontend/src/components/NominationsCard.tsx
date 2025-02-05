@@ -13,21 +13,11 @@ function NominationsCard({ category }: Props) {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="bg-linear-to-br from-yellow-900 to-gold to-95% p-6 rounded-lg border-4 shadow-lg hover:shadow-xl transition transform">
-            <h3 className="text-2xl font-serif font-bold mb-4">
-                {nominationsForCategory?.category.name}
-            </h3>
-            <ul className="flex flex-wrap gap-2">
-                {nominationsForCategory?.nominations.map(
-                    (nomination: Nomination) => (
-                        <NominationItem
-                            key={nomination.id}
-                            nomination={nomination}
-                        />
-                    ),
-                )}
-            </ul>
-        </div>
+        <ul className="flex flex-wrap gap-2">
+            {nominationsForCategory.map((nomination: Nomination) => (
+                <NominationItem key={nomination.id} nomination={nomination} />
+            ))}
+        </ul>
     );
 }
 

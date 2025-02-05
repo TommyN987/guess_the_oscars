@@ -4,7 +4,7 @@ import { getUser } from "../api/auth";
 
 type AuthContextType = {
     user: User | null;
-    setUser: (user: User) => void;
+    setUser: (user: User | null) => void;
     loading: boolean; // Add loading state
 };
 

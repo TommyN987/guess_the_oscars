@@ -89,8 +89,9 @@ func validateEmail(svc service.Service) fiber.Handler {
 		setTokenAsCookie(c, jwtToken)
 
 		return c.JSON(fiber.Map{
-			"message": "Email validated successfully.",
-			"token":   jwtToken,
+			"id":    user.ID,
+			"email": user.Email,
+			"name":  user.Name,
 		})
 	}
 
@@ -108,7 +109,7 @@ func loginUser(svc service.Service) fiber.Handler {
 			})
 		}
 
-		token, err := svc.LoginUser(c.Context(), credentials.Email, credentials.Password)
+		token, user, err := svc.LoginUser(c.Context(), credentials.Email, credentials.Password)
 		if err != nil {
 			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 				"error": err.Error(),
@@ -118,7 +119,9 @@ func loginUser(svc service.Service) fiber.Handler {
 		setTokenAsCookie(c, token)
 
 		return c.JSON(fiber.Map{
-			"token": token,
+			"id":    user.ID,
+			"email": user.Email,
+			"name":  user.Name,
 		})
 	}
 }
@@ -162,7 +165,16 @@ func getNominationsByCategory(svc service.Service) fiber.Handler {
 			})
 		}
 
-		category, nominations, err := svc.GetNominationsByCategory(c.Context(), categoryID)
+		userIDFloat, ok := c.Locals("userID").(float64)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid user ID type",
+			})
+		}
+
+		userID := int(userIDFloat)
+
+		nominations, guess, err := svc.GetNominationsByCategory(c.Context(), userID, categoryID)
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to retrieve nominations",
@@ -171,18 +183,43 @@ func getNominationsByCategory(svc service.Service) fiber.Handler {
 
 		nominationsResponse := make([]NominationResponse, len(nominations))
 		for i, n := range nominations {
-			nominationsResponse[i] = toResponseNomination(n)
+			nominationsResponse[i] = toResponseNomination(n, guess)
 		}
 
 		return c.JSON(fiber.Map{
-			"category":    category,
 			"nominations": nominationsResponse,
 		})
 	}
 }
 
-func submitGuesses() fiber.Handler {
+func submitGuess(svc service.Service) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.JSON("Submitted")
+		userIDFloat, ok := c.Locals("userID").(float64)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Unauthorized request.",
+			})
+		}
+		userID := int(userIDFloat)
+
+		var guess GuessDTO
+		if err := c.BodyParser(&guess); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid request body.",
+			})
+		}
+
+		domainGuess := toDomainGuess(guess, userID)
+
+		err := svc.SubmitGuess(c.Context(), domainGuess)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"message": "Failed to submit guess.",
+			})
+		}
+
+		return c.Status(http.StatusCreated).JSON(fiber.Map{
+			"message": "Guess submitted successfully.",
+		})
 	}
 }
