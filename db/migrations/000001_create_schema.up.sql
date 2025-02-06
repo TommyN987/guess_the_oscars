@@ -41,8 +41,13 @@ CREATE TABLE guesses (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
-    nomination_id INT NOT NULL REFERENCES nominations(id) ON DELETE CASCADE
+    nomination_id INT NOT NULL REFERENCES nominations(id) ON DELETE CASCADE,
+    is_correct BOOLEAN DEFAULT NULL
 );
+
+ALTER TABLE categories 
+ADD COLUMN winner_id INT 
+REFERENCES nominations(id) DEFAULT NULL;
 
 ALTER TABLE guesses
 ADD CONSTRAINT unique_user_category UNIQUE (user_id, category_id);

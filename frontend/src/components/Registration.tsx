@@ -96,16 +96,16 @@ function Registration() {
     }, [activeTab, register, login, setUser]);
 
     return (
-        <div className="flex flex-col w-[95%] sm:w-2/3 lg:w-1/2 bg-zinc-800 border-4 border-white p-8 z-10">
+        <div className="flex flex-col w-[95%] sm:w-2/3 lg:w-1/2 bg-dark border-4 border-sunny p-8 z-10 text-sunny">
             <ul className="flex justify-evenly">
                 <li
-                    className={`${activeTab === Tab.Login && "border-b-2 border-white"} cursor-pointer`}
+                    className={`${activeTab === Tab.Login && "border-b-2 border-sunny"} cursor-pointer`}
                     onClick={() => setActiveTab(Tab.Login)}
                 >
                     Login
                 </li>
                 <li
-                    className={`${activeTab === Tab.Register && "border-b-2 border-white"} cursor-pointer`}
+                    className={`${activeTab === Tab.Register && "border-b-2 border-sunny"} cursor-pointer`}
                     onClick={() => setActiveTab(Tab.Register)}
                 >
                     Register
@@ -116,7 +116,7 @@ function Registration() {
                     <div className="flex flex-col gap-1">
                         <p>Name:</p>
                         <input
-                            className="border-1 border-white rounded-xl p-2 outline-none"
+                            className="border-1 border-sunny rounded-xl p-2 outline-none"
                             type="text"
                             ref={nameRef}
                         />
@@ -125,7 +125,7 @@ function Registration() {
                 <div className="flex flex-col">
                     <p>Email:</p>
                     <input
-                        className="border-1 border-white rounded-xl p-2 outline-none"
+                        className="border-1 border-sunny rounded-xl p-2 outline-none"
                         type="email"
                         ref={emailRef}
                     />
@@ -133,7 +133,7 @@ function Registration() {
                 <div className="flex flex-col">
                     <p>Password:</p>
                     <input
-                        className="border-1 border-white rounded-xl p-2 outline-none"
+                        className="border-1 border-sunny rounded-xl p-2 outline-none"
                         type="password"
                         ref={passwordRef}
                     />
@@ -145,17 +145,17 @@ function Registration() {
                     <div className="flex flex-col">
                         <p>Repeat Password:</p>
                         <input
-                            className="border-1 border-white rounded-xl p-2 outline-none"
+                            className="border-1 border-sunny rounded-xl p-2 outline-none"
                             type="password"
                             ref={repeatPasswordRef}
                         />
                     </div>
                 )}
                 <button
-                    className="cursor-pointer border-2 border-gold bg-gold rounded-xl py-1.5 hover:bg-sunset"
+                    className="cursor-pointer border-2 border-sunny bg-sunny text-dark rounded-xl py-1.5 hover:bg-sunset hover:text-sunny"
                     onClick={handleSubmit}
                 >
-                    Submit
+                    {activeTab === Tab.Login ? "Login" : "Register"}
                 </button>
             </div>
         </div>

@@ -8,15 +8,13 @@ type Props = {
 function NominationItem({ nomination, onSubmitGuess }: Props) {
     return (
         <li
-            className={`w-[95%] sm:w-[45%] rounded-xl py-3 pl-6 text-white cursor-pointer ${nomination.isGuessed ? "bg-linear-to-br from-sunset to-gold" : "bg-gradient-to-br from-gold from-55% to-sunny"}`}
+            className={`w-[95%] sm:w-[45%] rounded-xl py-3 pl-6 text-white cursor-pointer bg-gradient-to-br from-55% ${nomination.isGuessed ? " from-sunset to-gold" : "from-gold to-sunny"}`}
             onClick={() => onSubmitGuess(nomination.id)}
         >
-            <p className="font-bold test-base lg:text-lg">
-                {nomination.movie.title}
-            </p>
+            <p className="font-bold text-lg">{nomination.movie.title}</p>
             <ul className="flex flex-col">
                 {nomination.people?.map((person) => (
-                    <p className="text-base font-semibold" key={person.id}>
+                    <p className="text-base font-semibold pl-4" key={person.id}>
                         {person.name}
                     </p>
                 ))}

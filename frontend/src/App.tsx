@@ -43,14 +43,14 @@ function App() {
                 className="fixed inset-0 min-h-screen flex flex-col items-center bg-gradient-to-b from-black via-gray-900 to-black text-white font-sans"
             >
                 <div className="absolute inset-0 bg-black opacity-60" />
-                <header className="w-full flex justify-center font-serif bg-black text-2xl sm:text-4xl opacity-90 p-2 text-gold">
+                <header className="w-full flex justify-center font-serif bg-black text-2xl sm:text-4xl opacity-90 p-2 text-sunny">
                     <h1 className="z-40">Guess the Oscars</h1>
                 </header>
                 {user && (
-                    <p className="sm:block absolute top-3 left-5 px-4 py-1 font-bold text-gold z-20 hidden">{`Welcome, ${user.name}`}</p>
+                    <p className="sm:block absolute top-3 left-5 px-4 py-1 font-bold text-sunny z-20 hidden">{`Welcome, ${user.name}`}</p>
                 )}
                 <button
-                    className="hidden sm:block absolute top-3 right-5 px-4 py-1 bg-gold text-black border-2 border-gold rounded-lg cursor-pointer hover:text-gold hover:bg-black z-20"
+                    className="hidden sm:block absolute top-3 right-5 px-4 py-1 bg-sunny text-black border-2 border-sunny rounded-lg cursor-pointer hover:text-sunny hover:bg-black z-20"
                     onClick={handleLogout}
                 >
                     Logout
