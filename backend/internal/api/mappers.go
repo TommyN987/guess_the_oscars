@@ -30,5 +30,6 @@ func toDomainGuess(g GuessDTO, userID int) domain.Guess {
 	return domain.Guess{
 		UserID:       userID,
 		NominationID: g.NominationID,
+		CategoryID:   g.CategoryID,
 	}
 }

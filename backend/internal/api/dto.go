@@ -20,4 +20,5 @@ type UserDTO struct {
 
 type GuessDTO struct {
 	NominationID int `json:"nomination_id"`
+	CategoryID   int `json:"category_id"`
 }

@@ -38,8 +38,13 @@ type NominationsForCategory = {
 };
 
 type Guess = {
-    userID: number;
     nominationID: number;
+    categoryID: number;
+};
+
+type GuessDTO = {
+    nomination_id: number;
+    category_id: number;
 };
 
 export {
@@ -51,4 +56,5 @@ export {
     type NominationDTO,
     type NominationsForCategory,
     type Guess,
+    type GuessDTO,
 };

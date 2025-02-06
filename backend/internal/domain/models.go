@@ -42,4 +42,5 @@ type UserValidation struct {
 type Guess struct {
 	UserID       int
 	NominationID int
+	CategoryID   int
 }

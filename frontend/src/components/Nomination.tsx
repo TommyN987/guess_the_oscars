@@ -1,29 +1,26 @@
 import { Nomination } from "../api/types";
-import { useGuess } from "../hooks/useGuess";
 
 type Props = {
+    onSubmitGuess: (nominationID: number) => Promise<void>;
     nomination: Nomination;
 };
 
-function NominationItem({ nomination }: Props) {
-    const { submitGuess } = useGuess(nomination.id);
-
-    if (nomination.id === 2) {
-        console.log(nomination.isGuessed);
-    }
-
+function NominationItem({ nomination, onSubmitGuess }: Props) {
     return (
         <li
-            className="w-[30%] rounded-xl p-3 bg-radial from-zinc-600 to-zinc-900 to-75%"
-            onClick={submitGuess}
+            className={`w-[95%] sm:w-[45%] rounded-xl py-3 pl-6 text-white cursor-pointer ${nomination.isGuessed ? "bg-linear-to-br from-sunset to-gold" : "bg-gradient-to-br from-gold from-55% to-sunny"}`}
+            onClick={() => onSubmitGuess(nomination.id)}
         >
-            <p className="font-bold">{nomination.movie.title}</p>
-            <ul className="flex gap-1">
+            <p className="font-bold test-base lg:text-lg">
+                {nomination.movie.title}
+            </p>
+            <ul className="flex flex-col">
                 {nomination.people?.map((person) => (
-                    <p key={person.id}>{`${person.name} &`}</p>
+                    <p className="text-base font-semibold" key={person.id}>
+                        {person.name}
+                    </p>
                 ))}
             </ul>
-            {nomination.isGuessed && <p>Guessed!</p>}
         </li>
     );
 }

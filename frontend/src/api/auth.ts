@@ -58,7 +58,7 @@ async function login(email: string, password: string): Promise<User> {
     });
 
     if (!resp.ok) {
-        throw new Error("Invalid email or password.");
+        throw new Error(resp.status.toString());
     } else {
         return resp.json();
     }

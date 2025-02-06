@@ -49,5 +49,6 @@ type GuessDB struct {
 	ID           int
 	UserID       int
 	NominationID int
+	CategoryID   int
 	CreatedAt    time.Time
 }

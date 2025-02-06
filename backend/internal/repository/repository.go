@@ -142,12 +142,12 @@ func (r *PgxRepository) GetNominationsByCategoryID(ctx context.Context, userID, 
 
 func (r *PgxRepository) UpsertGuess(ctx context.Context, g domain.Guess) error {
 	_, err := r.db.Exec(ctx, `
-        INSERT INTO guesses (user_id, nomination_id)
-        VALUES ($1, $2)
-        ON CONFLICT (user_id, nomination_id) 
+        INSERT INTO guesses (user_id, nomination_id, category_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (user_id, category_id) 
         DO UPDATE SET nomination_id = EXCLUDED.nomination_id
         `,
-		g.UserID, g.NominationID)
+		g.UserID, g.NominationID, g.CategoryID)
 	return err
 }
 

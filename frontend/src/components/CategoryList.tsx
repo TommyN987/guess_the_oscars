@@ -8,7 +8,7 @@ function CategoryList() {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <ul className="w-[50%] flex flex-col gap-4 z-50">
+        <ul className="w-[95%] md:w-2/3 xl:w-1/2 flex flex-col gap-4 py-20 z-50">
             {categories.map((category) => (
                 <Accordion key={category.id} category={category} />
             ))}

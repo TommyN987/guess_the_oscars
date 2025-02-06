@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useMemo, useCallback, useRef, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { User } from "../api/types";
 
@@ -7,11 +7,22 @@ enum Tab {
     Register,
 }
 
+enum PasswordError {
+    TooShort,
+    NoUppercase,
+    NoMatch,
+    Invalid,
+    None,
+}
+
 function Registration() {
     const {
         context: { setUser },
     } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>(Tab.Login);
+    const [error, setError] = useState<PasswordError | string>(
+        PasswordError.None,
+    );
 
     const { register, login } = useAuth();
 
@@ -20,24 +31,72 @@ function Registration() {
     const passwordRef = useRef<HTMLInputElement>(null);
     const repeatPasswordRef = useRef<HTMLInputElement>(null);
 
+    const validatePassword = (): PasswordError => {
+        if (passwordRef.current!.value.length < 8) {
+            return PasswordError.TooShort;
+        }
+
+        if (!/[A-Z]/.test(passwordRef.current!.value)) {
+            return PasswordError.NoUppercase;
+        }
+
+        if (passwordRef.current?.value !== repeatPasswordRef.current?.value) {
+            return PasswordError.NoMatch;
+        }
+
+        return PasswordError.None;
+    };
+
+    const passwordErrorToString = useMemo((): string => {
+        switch (error) {
+            case PasswordError.TooShort:
+                return "Password must be at least 8 characters long.";
+            case PasswordError.NoUppercase:
+                return "Password must contain at least 1 uppercase letter.";
+            case PasswordError.NoMatch:
+                return "Passwords don't match.";
+            case PasswordError.Invalid:
+                return "Invalid email or password";
+            case PasswordError.None:
+                return "";
+        }
+        return error;
+    }, [error]);
+
     const handleSubmit = useCallback(async () => {
         if (activeTab === Tab.Login) {
-            const user: User = await login(
-                emailRef.current!.value,
-                passwordRef.current!.value,
-            );
-            setUser(user);
+            try {
+                const user: User = await login(
+                    emailRef.current!.value,
+                    passwordRef.current!.value,
+                );
+                setUser(user);
+            } catch (error) {
+                if (error instanceof Error && parseInt(error.message) < 500) {
+                    setError(PasswordError.Invalid);
+                } else {
+                    setError("Server error. Try again later.");
+                }
+            }
         } else {
-            await register(
-                nameRef.current!.value,
-                emailRef.current!.value,
-                passwordRef.current!.value,
-            );
+            const error: PasswordError = validatePassword();
+
+            if (error === PasswordError.None) {
+                await register(
+                    nameRef.current!.value,
+                    emailRef.current!.value,
+                    passwordRef.current!.value,
+                );
+                return;
+            } else {
+                setError(error);
+                return;
+            }
         }
     }, [activeTab, register, login, setUser]);
 
     return (
-        <div className="flex flex-col h-1/2 w-1/2 bg-zinc-800 border-4 border-white p-8 z-10">
+        <div className="flex flex-col w-[95%] sm:w-2/3 lg:w-1/2 bg-zinc-800 border-4 border-white p-8 z-10">
             <ul className="flex justify-evenly">
                 <li
                     className={`${activeTab === Tab.Login && "border-b-2 border-white"} cursor-pointer`}
@@ -78,6 +137,9 @@ function Registration() {
                         type="password"
                         ref={passwordRef}
                     />
+                    {error !== PasswordError.None && (
+                        <p className="text-red-500">{passwordErrorToString}</p>
+                    )}
                 </div>
                 {activeTab === Tab.Register && (
                     <div className="flex flex-col">
@@ -89,7 +151,12 @@ function Registration() {
                         />
                     </div>
                 )}
-                <button onClick={handleSubmit}>Submit</button>
+                <button
+                    className="cursor-pointer border-2 border-gold bg-gold rounded-xl py-1.5 hover:bg-sunset"
+                    onClick={handleSubmit}
+                >
+                    Submit
+                </button>
             </div>
         </div>
     );

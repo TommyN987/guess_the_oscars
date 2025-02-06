@@ -40,8 +40,9 @@ CREATE TABLE users (
 CREATE TABLE guesses (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
     nomination_id INT NOT NULL REFERENCES nominations(id) ON DELETE CASCADE
 );
 
 ALTER TABLE guesses
-ADD CONSTRAINT unique_user_nomination UNIQUE (user_id, nomination_id);
+ADD CONSTRAINT unique_user_category UNIQUE (user_id, category_id);

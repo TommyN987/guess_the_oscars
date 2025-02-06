@@ -1,12 +1,14 @@
 import { postGuess } from "../api/guess";
+import { Guess, GuessDTO } from "../api/types";
 
-function useGuess(nominationID: number) {
-    const submitGuess = async () => {
-        try {
-            await postGuess(nominationID);
-        } catch (error) {
-            console.error(error);
-        }
+function useGuess() {
+    const submitGuess = async (g: Guess) => {
+        const guess: GuessDTO = {
+            nomination_id: g.nominationID,
+            category_id: g.categoryID,
+        };
+
+        await postGuess(guess);
     };
 
     return { submitGuess };
